@@ -19,6 +19,9 @@ lerna-debug.log*
 #Firebase Admin Credentials 
 **/firebase-admin-credentials.json
 
+#API Keys and Credentials 
+.env.local
+
 # Build output
 dist
 dist-ssr
