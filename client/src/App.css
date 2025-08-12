@@ -1,0 +1,9 @@
+/* Removes default browser margin */
+body {
+  margin: 0;
+  font-family: Helvetica 
+}
+
+#root {
+  text-align: center;
+}

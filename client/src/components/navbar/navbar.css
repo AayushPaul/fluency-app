@@ -1,0 +1,59 @@
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #124419;
+  padding: 15px 30px;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.navbar-logo .logo-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.8em; /* Larger font size for the app name */
+  font-weight: bold;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 25px; /* Space between the navigation links */
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1em;
+  padding: 5px 0; /* Optional: for a subtle hover/active effect underline space */
+  position: relative; /* For potential active indicator */
+}
+
+.nav-link:hover {
+  color: #64ffda; /* A common accent color for dark themes, adjust as you like */
+  border-bottom: 2px solid #64ffda;
+}
+
+.nav-link.active {
+  color: #64ffda;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: inherit;
+}
+
+.logout-btn:hover {
+    /* Add a hover effect if you want, e.g., text-decoration: underline; */
+    color: #a7d7c5; /* Or whatever your link hover color is */
+}
+
+.logo-link {
+  font-size: 1.5em; /* Makes it 50% larger */
+  font-weight: bold;
+}

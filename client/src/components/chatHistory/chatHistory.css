@@ -1,0 +1,127 @@
+/* Main container for the entire page */
+.history-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Header section with the title and subtitle */
+.history-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.history-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.history-header p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* The list that holds all the history items */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between each history card */
+}
+
+/* Styling for a single history item card */
+.history-item {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+.history-item:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header within each card (contains type and date) */
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* "Video Recording" or "Audio Recording" badge */
+.history-type {
+    font-weight: bold;
+    color: #1e6b52; /* Dark green accent */
+    font-size: 1.1rem;
+}
+
+/* Date of the recording */
+.history-date {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* The AI feedback text */
+.history-feedback {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+    white-space: pre-wrap; /* Respects line breaks from the AI */
+}
+
+/* Styling for the loader and error message (reused from other components) */
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #2d5a4b;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-top: 30px;
+}
+
+.history-tools-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.history-tools-section strong {
+    color: #333;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.history-tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.history-tool-tag {
+    background-color: #e0f2f1;
+    color: #1e6b52;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}

@@ -1,0 +1,91 @@
+.account-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.account-box {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.account-box h2 {
+    margin-top: 0;
+}
+
+.account-box hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.delete-section h3 {
+    color: #dc3545;
+}
+
+.delete-section p {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.delete-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.confirmation-dialog {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #f5c6cb;
+    background-color: #f8d7da;
+    border-radius: 5px;
+}
+
+.confirmation-dialog input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+}
+
+.confirmation-dialog .delete-btn.confirm {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.cancel-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.account-box .error-message {
+    color: #721c24;
+    font-weight: bold;
+    margin-top: 15px;
+    text-align: center;
+}

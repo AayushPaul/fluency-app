@@ -1,0 +1,127 @@
+.homepage-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: #295757; /* Dark teal background */
+    color: #e0e0e0; /* Off-white text for better readability */
+    text-align: center;
+    min-height: 90vh;
+}
+
+.hero-content {
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px; /* Space between text and image columns */
+    margin-bottom: 50px;
+}
+
+.text-content {
+    flex: 2; /* Allows text to take up more space */
+    text-align: left;
+}
+
+.image-content {
+    flex: 1; /* Image takes less space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-heading {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #ffffff; /* Bright accent color */
+    line-height: 1.2;
+}
+
+.hero-paragraph {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 600px; /* Constrain line length for readability */
+}
+
+.hero-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hero-image-caption {
+    font-size: 1.0rem;
+    font-style: italic;
+    color: #b0b0b0;
+    margin-top: 15px;
+    max-width: 300px;
+}
+
+.marcus-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.marcus-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #64ffda;
+    flex-shrink: 0; /* Prevents image from shrinking */
+}
+
+.marcus-caption {
+    font-size: 1.0rem;
+    font-style: italic;
+    color: #c9d1d9;
+    text-align: left;
+}
+
+.cta-button {
+    background-color: #64ffda;
+    color: #295757; /* Match background color */
+    padding: 15px 35px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.cta-button:hover {
+    transform: scale(1.05);
+    background-color: #ffffff;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 900px) {
+    .hero-content {
+        flex-direction: column; /* Stacks text and image vertically */
+    }
+
+    .text-content {
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 40px;
+    }
+    
+    .hero-paragraph {
+        max-width: 100%;
+    }
+
+    .marcus-section {
+        justify-content: center;
+    }
+}

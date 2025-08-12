@@ -1,0 +1,146 @@
+.audio-recorder-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.page-header h2 {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.recorder-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+.status-indicator {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+.record-button {
+    background-color: #28a745; /* Green for start */
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.record-button:hover {
+    transform: scale(1.05);
+}
+
+.record-button.recording {
+    background-color: #dc3545; /* Red for stop */
+    animation: pulse 1.5s infinite;
+}
+
+.record-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.error-message {
+    color: #dc3545;
+    margin-top: 20px;
+}
+
+.audio-playback {
+    margin-top: 30px;
+}
+
+.audio-playback h4 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+audio {
+    width: 100%;
+}
+
+.feedback-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e9ecef;
+    text-align: left;
+}
+
+.feedback-section h3 {
+    text-align: center;
+    color: #1e6b52;
+    margin-bottom: 20px;
+}
+
+.feedback-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.tools-recommendation {
+    margin-top: 25px;
+}
+
+.tools-recommendation h4 {
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.tools-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tool-tag {
+    background-color: #e0f2f1;
+    color: #1e6b52;
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.tool-tag:hover {
+    background-color: #b2dfdb;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #2d5a4b;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 30px auto 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
