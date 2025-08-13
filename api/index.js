@@ -5,73 +5,55 @@ const { SpeechClient } = require('@google-cloud/speech');
 const { VideoIntelligenceServiceClient } = require('@google-cloud/video-intelligence');
 const { Storage } = require('@google-cloud/storage');
 const { v4: uuidv4 } = require('uuid');
-const { Readable } = require('stream');
 const cors = require('cors');
 const multer = require('multer');
+const admin = require('firebase-admin');
+const sgMail = require('@sendgrid/mail');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 5001;
 
-const admin = require('firebase-admin');
+// --- Firebase Admin & Google Cloud Initialization ---
+// This method explicitly parses the credentials from your Vercel environment variables
+const firebaseCreds = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS_JSON);
+const googleCloudCreds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+const googleCloudProjectId = googleCloudCreds.project_id;
 
 if (!admin.apps.length) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS_JSON);
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
+      credential: admin.credential.cert(firebaseCreds)
     });
 }
-
-const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
-const ffmpegStatic = require('ffmpeg-static');
-const ffprobe = require('@ffprobe-installer/ffprobe');
-
-// Tell fluent-ffmpeg where to find the ffmpeg binary
-ffmpeg.setFfmpegPath(ffmpegStatic);
-ffmpeg.setFfprobePath(ffprobe.path);
-
 const db = admin.firestore();
 
-// --- Configuration ---
+// --- Configuration & Clients ---
 const BUCKET_NAME = 'fluency-app-463902-audio-uploads';
-
-// --- Client Initialization ---
-const speechClient = new SpeechClient();
-const videoIntelligenceClient = new VideoIntelligenceServiceClient();
-const storage = new Storage();
-const anthropic = new Anthropic({
-    apiKey: process.env.CLAUDE_API_KEY,
-});
-
-// --- Welcome Email Configuration ---
-const sgMail = require('@sendgrid/mail');
+const speechClient = new SpeechClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+const videoIntelligenceClient = new VideoIntelligenceServiceClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+const storage = new Storage({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY });
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- Middleware ---
-app.use(express.json({ limit: '50mb' }));
 app.use(cors());
+app.use(express.json({ limit: '50mb' }));
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
 });
 
-// Middleware to verify Firebase ID token
 const verifyToken = async (req, res, next) => {
     const idToken = req.headers.authorization?.split('Bearer ')[1];
-
-    if (!idToken) {
-        return res.status(401).send('Unauthorized');
-    }
+    if (!idToken) return res.status(401).send('Unauthorized');
     try {
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-        req.user = decodedToken; // Add user info to the request object
+        req.user = await admin.auth().verifyIdToken(idToken);
         next();
     } catch (error) {
         res.status(401).send('Unauthorized');
     }
 };
 
+// --- Routes ---
 app.get('/', (req, res) => res.send('Fluency App server is running!'));
 
 app.get('/api/chat-history', verifyToken, async (req, res) => {
@@ -79,16 +61,10 @@ app.get('/api/chat-history', verifyToken, async (req, res) => {
         const userId = req.user.uid;
         const historyRef = db.collection('history');
         const snapshot = await historyRef.where('userId', '==', userId).orderBy('timestamp', 'desc').get();
-
         if (snapshot.empty) {
             return res.status(200).json([]);
         }
-
-        const history = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        
+        const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         res.status(200).json(history);
     } catch (error) {
         console.error("Error fetching chat history:", error);
@@ -150,7 +126,6 @@ app.post('/api/delete-account', verifyToken, async (req, res) => {
         const uid = req.user.uid;
         const historyRef = db.collection('history');
         const snapshot = await historyRef.where('userId', '==', uid).get();
-        
         if (!snapshot.empty) {
             const batch = db.batch();
             snapshot.docs.forEach(doc => batch.delete(doc.ref));
@@ -175,30 +150,13 @@ app.post('/api/analyze-video', [verifyToken, upload.single('videoFile')], async 
     const file = storage.bucket(BUCKET_NAME).file(fileName);
 
     try {
-        // 1. Uploads video to GCS
         await file.save(req.file.buffer);
-
-        // 2. Uses the single, robust method for both long and short videos
-        console.log("Processing video with robust long-running recognition...");
-        const speechRequest = {
-            audio: { uri: gcsUri },
-            config: { encoding: 'WEBM_OPUS', sampleRateHertz: 48000, languageCode: 'en-US', enableAutomaticPunctuation: true },
-        };
-        const videoRequest = {
-            inputUri: gcsUri,
-            features: ['FACE_DETECTION'],
-        };
-
+        const speechRequest = { audio: { uri: gcsUri }, config: { encoding: 'WEBM_OPUS', sampleRateHertz: 48000, languageCode: 'en-US', enableAutomaticPunctuation: true } };
+        const videoRequest = { inputUri: gcsUri, features: ['FACE_DETECTION'] };
         const [speechOperation] = await speechClient.longRunningRecognize(speechRequest);
         const [videoOperation] = await videoIntelligenceClient.annotateVideo(videoRequest);
-
-        // 3. Waits for both operations to complete
-        const [[speechResponse], [videoResponse]] = await Promise.all([
-            speechOperation.promise(),
-            videoOperation.promise(),
-        ]);
-
-        // 4. Processes results
+        const [[speechResponse], [videoResponse]] = await Promise.all([speechOperation.promise(), videoOperation.promise()]);
+        
         const transcription = speechResponse.results.map(r => r.alternatives[0].transcript).join('\n');
         let visualAnalysis = "No significant facial tension or unusual movements were detected.";
         if (videoResponse.annotationResults[0]?.faceDetectionAnnotations?.length > 0) {
@@ -207,8 +165,7 @@ app.post('/api/analyze-video', [verifyToken, upload.single('videoFile')], async 
         if (!transcription) {
             return res.status(500).json({ error: 'Could not transcribe audio from video.' });
         }
-
-        // 5. Synthesizes a combined prompt for Claude
+        
         const availableTools = ["Word Stretching", "Over-Articulation", "Hammer Tool", "Hammer-Link Tool", "Hand Movements", "Short Phrasing", "Smiling", "Soft Landing"];
         const prompt = `
             You are a friendly, encouraging, and supportive speech coach. Your goal is to help the user build confidence.
@@ -224,16 +181,9 @@ app.post('/api/analyze-video', [verifyToken, upload.single('videoFile')], async 
             The JSON object must have exactly two keys: "textFeedback" and "toolSuggestions".
         `;
 
-        // 6. Gets final analysis from Claude
-        const msg = await anthropic.messages.create({
-            model: "claude-3-5-sonnet-20240620",
-            max_tokens: 1024,
-            messages: [{ role: "user", content: prompt }],
-        });
-
+        const msg = await anthropic.messages.create({ model: "claude-3-5-sonnet-20240620", max_tokens: 1024, messages: [{ role: "user", content: prompt }] });
         const finalResponse = JSON.parse(msg.content[0].text);
-
-        // 7. Saves to Firestore
+        
         const historyEntry = { userId: req.user.uid, type: 'Video Recording', feedback: finalResponse.textFeedback, toolSuggestions: finalResponse.toolSuggestions, timestamp: admin.firestore.FieldValue.serverTimestamp() };
         await db.collection('history').add(historyEntry);
         res.json(finalResponse);
@@ -242,12 +192,7 @@ app.post('/api/analyze-video', [verifyToken, upload.single('videoFile')], async 
         console.error("Error during analysis:", error);
         res.status(500).json({ error: 'Failed to analyze video. Check server logs.' });
     } finally {
-        // 8. Cleans up the GCS file
-        try {
-            await file.delete();
-        } catch (cleanupError) {
-            console.error("Error cleaning up GCS file:", cleanupError);
-        }
+        try { await file.delete(); } catch (cleanupError) { console.error("Error cleaning up GCS file:", cleanupError); }
     }
 });
 
@@ -257,34 +202,18 @@ app.post('/api/analyze-audio', [verifyToken, upload.single('audioFile')], async 
         return res.status(400).json({ error: 'No audio file uploaded.' });
     }
 
-     // Creates a unique filename for GCS
     const fileName = `${uuidv4()}.webm`;
     const gcsUri = `gs://${BUCKET_NAME}/${fileName}`;
     const file = storage.bucket(BUCKET_NAME).file(fileName);
 
     try {
-        // 1. Uploads the audio file to Google Cloud Storage
         await file.save(req.file.buffer);
-
-        // 2. Transcribes using the GCS URI with the long-running method
-        const audio = {
-            uri: gcsUri, 
-        };
-        const config = {
-            encoding: 'WEBM_OPUS',
-            sampleRateHertz: 48000,
-            languageCode: 'en-US',
-            enableAutomaticPunctuation: true,
-        };
+        const audio = { uri: gcsUri };
+        const config = { encoding: 'WEBM_OPUS', sampleRateHertz: 48000, languageCode: 'en-US', enableAutomaticPunctuation: true };
         const request = { audio, config };
-        
-        // Uses the robust longRunningRecognize method
         const [operation] = await speechClient.longRunningRecognize(request);
         const [speechResponse] = await operation.promise();
-
-        const transcription = speechResponse.results
-            .map(result => result.alternatives[0].transcript)
-            .join('\n');
+        const transcription = speechResponse.results.map(result => result.alternatives[0].transcript).join('\n');
 
         if (!transcription) {
             return res.status(500).json({ error: 'Could not transcribe audio.' });
