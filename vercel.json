@@ -22,5 +22,10 @@
       "source": "/(.*)",
       "destination": "/client/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300
+    }
+  }
 }

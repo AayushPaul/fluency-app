@@ -10,7 +10,6 @@ const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
-// const port = process.env.PORT || 5001;
 
 const admin = require('firebase-admin');
 
@@ -22,50 +21,65 @@ const ffprobe = require('@ffprobe-installer/ffprobe');
 // Tell fluent-ffmpeg where to find the ffmpeg binary
 ffmpeg.setFfmpegPath(ffmpegStatic);
 ffmpeg.setFfprobePath(ffprobe.path);
-const db = admin.firestore();
+
+// Initialize variables
+let db, speechClient, videoIntelligenceClient, storage;
 
 if (process.env.NODE_ENV === 'production') {
     // --- PRODUCTION MODE (on Vercel) ---
     // Parses the credentials from Vercel's environment variables
     console.log("Running in Production Mode: Initializing from ENV VARS");
-    const firebaseCreds = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS_JSON);
-    const googleCloudCreds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-    const googleCloudProjectId = googleCloudCreds.project_id;
+    
+    try {
+        const firebaseCreds = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS_JSON);
+        const googleCloudCreds = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        const googleCloudProjectId = googleCloudCreds.project_id;
 
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            credential: admin.credential.cert(firebaseCreds)
-        });
+        if (!admin.apps.length) {
+            admin.initializeApp({
+                credential: admin.credential.cert(firebaseCreds)
+            });
+        }
+        db = admin.firestore();
+        speechClient = new SpeechClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+        videoIntelligenceClient = new VideoIntelligenceServiceClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+        storage = new Storage({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
+        
+        console.log("Successfully initialized production services");
+    } catch (error) {
+        console.error("Error initializing production services:", error);
+        throw error;
     }
-    db = admin.firestore();
-    speechClient = new SpeechClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
-    videoIntelligenceClient = new VideoIntelligenceServiceClient({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
-    storage = new Storage({ projectId: googleCloudProjectId, credentials: googleCloudCreds });
 
 } else {
     // --- LOCAL DEVELOPMENT MODE ---
     // Uses the file paths from your .env.local file
     console.log("Running in Local Mode: Initializing from local files");
-    const serviceAccount = require(`../${process.env.FIREBASE_ADMIN_CREDENTIALS}`); // Note the ../ to go up from /api
     
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
+    try {
+        const serviceAccount = require(`../${process.env.FIREBASE_ADMIN_CREDENTIALS}`); // Note the ../ to go up from /api
+        
+        if (!admin.apps.length) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+        }
+        db = admin.firestore();
+        speechClient = new SpeechClient();
+        videoIntelligenceClient = new VideoIntelligenceServiceClient();
+        storage = new Storage();
+        
+        console.log("Successfully initialized local services");
+    } catch (error) {
+        console.error("Error initializing local services:", error);
+        throw error;
     }
-    db = admin.firestore();
-    speechClient = new SpeechClient();
-    videoIntelligenceClient = new VideoIntelligenceServiceClient();
-    storage = new Storage();
 }
 
 // --- Configuration ---
 const BUCKET_NAME = 'fluency-app-463902-audio-uploads';
 
 // --- Client Initialization ---
-const speechClient = new SpeechClient();
-const videoIntelligenceClient = new VideoIntelligenceServiceClient();
-const storage = new Storage();
 const anthropic = new Anthropic({
     apiKey: process.env.CLAUDE_API_KEY,
 });
