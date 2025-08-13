@@ -27,5 +27,7 @@
     "api/index.js": {
       "maxDuration": 300
     }
-  }
+  },
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
