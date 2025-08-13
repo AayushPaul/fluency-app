@@ -29,18 +29,18 @@ function SignUpPage() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Sends welcome email after successful signup
-            if (user) {
-                const apiUrl = '/api/send-welcome-email';
-                // This fetch call now has the proper headers and body
-                fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json', 
-                    },
-                    body: JSON.stringify({ email: user.email }), // Send the user's email
-                });
-            }
+            // // Sends welcome email after successful signup
+            // if (user) {
+            //     const apiUrl = 'http://localhost:5001/api/send-welcome-email';
+            //     // This fetch call now has the proper headers and body
+            //     fetch(apiUrl, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json', 
+            //         },
+            //         body: JSON.stringify({ email: user.email }), // Send the user's email
+            //     });
+            // }
 
             // 3. On successful signup, redirects to the login page
             navigate('/login-page');

@@ -10,13 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.55.0",
-    "@ffprobe-installer/ffprobe": "^2.1.2",
-    "@google-cloud/speech": "^7.1.0",
-    "@google-cloud/storage": "^7.16.0",
-    "@google-cloud/video-intelligence": "^6.1.0",
-    "@google/generative-ai": "^0.24.1",
-    "@sendgrid/mail": "^8.1.5",
     "bootstrap": "^5.3.6",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
