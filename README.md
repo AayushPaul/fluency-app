@@ -22,5 +22,3 @@ their communication skills and presence.
 - Claude API (primary API used to generate the text feedback from video and audio recordings)
 
 Walkthrough: [Introduction to Voice Unleashed](https://www.loom.com/share/c7e88642e3cd43a6aae63ef4ac20b243?sid=34e479f4-21d9-433e-b4b7-8ea607afdd55)
-
-Note: I am still working to deploy this application successfully. 
